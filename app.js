@@ -4,8 +4,17 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var expressJWT = require('express-jwt');
 var roleUtil = require('./plugins/util/roleUtil')
+var fs = require('fs');
 
 var app = express();
+
+app.use(express.static('public'))
+
+app.use('/found',function(req,res,next){
+  var form=fs.readFileSync("./public/index.html",{encoding:'utf-8'})
+  res.send(form)
+})
+
 // CORS & Preflight request
 app.all("*", function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -48,7 +57,6 @@ app.use('/api/roleManage', function (req, res, next) {roleUtil.userPermission(re
 app.use('/',require('./routes/editor'))
 app.use('/api/game',require('./routes/game'))
 app.use('/api/type',require('./routes/type'))
-app.use('/public', express.static('public'))
 app.use('/api/contract',require('./routes/contract'))
 
 app.use(function (req, res, next) {
