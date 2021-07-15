@@ -29,7 +29,7 @@ app.use(
       return null;
     }
   }).unless({
-    path: ['/api/user/login', '/api/user/code', '/api/user/cellphone','/upload','/api/game/getGameList','/api/type/getTypeList','/api/contract/getContractList','/api/game/getType'] //白名单
+    path: ['/api/user/login', '/api/user/code', '/api/user/cellphone'] //白名单
   })
 );
 

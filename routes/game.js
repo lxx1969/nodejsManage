@@ -129,7 +129,7 @@ router.post('/addGameList', async (req, res) => {
 router.post('/editGameList', async (req, res) => {
   try {
     let {
-      id,
+      game_id,
       title,
       min_chip,
       max_chip,
@@ -144,7 +144,7 @@ router.post('/editGameList', async (req, res) => {
       clear_block
     } = req.body;
     let pre = `update game set `;
-    let tail = ` where game_id='${id}'`
+    let tail = ` where game_id='${game_id}'`
     let str = ""
     if (title) {
       title = JSON.stringify(title)
@@ -163,7 +163,8 @@ router.post('/editGameList', async (req, res) => {
       str += `  type_game_id = '${type_game_id}',`;
     }
     if (end_time) {
-      end_time = end_time/1000
+      let temp = new String(end_time)
+      if(temp.length >= 12) end_time = end_time/1000
       str += `  end_time = ${end_time},`;
     }
     if (max_bet) {
@@ -197,7 +198,6 @@ router.post('/editGameList', async (req, res) => {
     let sql = pre + str + tail
     var conn = await mysql.getConnection();
     await mysql.beginTransaction(conn);
-    1726030000
     await mysql.query2(conn, sql);
     await mysql.commit(conn);
     res.json({
