@@ -54,12 +54,38 @@ router.post('/getTypeList', async (req, res) => {
 
 router.post('/addType', async (req, res) => {
     try {
-        const {
+        let {
             type_logo,
-            type_name
+            type_name,
+            detail_model
         } = req.body;
+
+        let modulo_list = new Array()
+        let type_name_list = new Array()
+        for (let i = 0; i < detail_model.length; i++) {
+          let game_type = detail_model[i].game_type
+          for (let j = 0; j < detail_model[i].detail.length; j++) {
+            modulo_list.push(game_type)
+            type_name_list.push({
+              "team": detail_model[i].detail[j].team,
+              "betName": game_type
+            })
+          }
+        }
+        modulo_list = {
+          "list": modulo_list
+        }
+        type_name_list = {
+          "list": type_name_list
+        }
+  
+        detail_model = JSON.stringify(detail_model);
+        modulo_list = JSON.stringify(modulo_list)
+        type_name_list = JSON.stringify(type_name_list)
+  
+
         let sql =
-            `INSERT INTO type_list(type_logo,type_name) VALUES('${type_logo}','${type_name}')`;
+        `INSERT INTO type_list(type_logo,type_name,detail_model,modulo_list,type_name_list) VALUES('${type_logo}','${type_name}','${detail_model}','${modulo_list}','${type_name_list}')`;
 
         await mysql.query(sql);
 
@@ -84,6 +110,7 @@ router.post('/addTypeGame', async (req, res) => {
             stream,
             type_id
         } = req.body;
+
         let sql =
             `INSERT INTO type_game_list(game_name,is_show,stream,type_id) VALUES('${game_name}',${is_show},${stream},${type_id})`;
 
@@ -104,13 +131,18 @@ router.post('/addTypeGame', async (req, res) => {
 
 router.post('/editTypeGame', async (req, res) => {
     try {
-        const {
+        let {
             type_game_id,
             game_name,
             is_show,
             stream,
-            type_id
+            type_id,
+            detail_model
         } = req.body;
+
+        let modulo_list = new Array()
+        let type_name_list = new Array()
+
         let pre = `update type_game_list set`;
         let tail = ` where type_game_id = ${type_game_id}`
         let str = ""
@@ -126,7 +158,31 @@ router.post('/editTypeGame', async (req, res) => {
         if (type_id) {
             str += `  type_id = '${type_id}',`;
         }
-       
+        if (detail_model) {
+            for (let i = 0; i < detail_model.length; i++) {
+                let game_type = detail_model[i].game_type
+                for (let j = 0; j < detail_model[i].detail.length; j++) {
+                  modulo_list.push(game_type)
+                  type_name_list.push({
+                    "team": detail_model[i].detail[j].team,
+                    "betName": game_type
+                  })
+                }
+              }
+              modulo_list = {
+                "list": modulo_list
+              }
+              type_name_list = {
+                "list": type_name_list
+              }
+        
+              detail_model = JSON.stringify(detail_model);
+              modulo_list = JSON.stringify(modulo_list)
+              type_name_list = JSON.stringify(type_name_list)
+
+            str += `  detail_model = '${detail_model}',modulo_list = '${modulo_list}',type_name_list = '${type_name_list}',`;
+        }
+
         if (str != "") {
             str = (str.substring(str.length - 1) == ',') ? str.substring(0, str.length - 1) : str;
         } else {
@@ -237,6 +293,5 @@ router.post('/deleteTypeList', async (req, res) => {
         });
     }
 });
-
 
 module.exports = router;

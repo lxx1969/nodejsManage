@@ -68,11 +68,19 @@ router.post('/getDetailModel', async (req, res) => {
 select t.detail_model from type_game_list as g JOIN type_list as t on g.type_id = t.type_id where g.type_game_id = ${type_game_id}`
     let data = await mysql.query(sql);
 
-    data[0].detail_model = JSON.parse(data[0].detail_model)
-    res.json({
-      code: 200,
-      data: data
-    })
+    if (data.length == 1 && data[0].detail_model == '') {
+      res.json({
+        code: 200,
+        data: []
+      })
+    } else {
+
+      data[0].detail_model = JSON.parse(data[0].detail_model)
+      res.json({
+        code: 200,
+        data: data
+      })
+    }
   } catch (el) {
     console.error(el)
     res.json({
@@ -106,10 +114,10 @@ router.post('/addGameList', async (req, res) => {
       game_detail = JSON.stringify(game_detail);
     }
     if (end_time) {
-      end_time = end_time/1000;
+      end_time = end_time / 1000;
     }
     let sql =
-    `INSERT INTO game(title,min_chip,max_chip,type_game_id,is_show,end_time,max_bet,min_bet,game_detail,end_block,is_auto_pass,clear_block) VALUES('${title}',${min_chip},${max_chip},${type_game_id},${is_show},${end_time},${max_bet},${min_bet},'${game_detail}',${end_block},${is_auto_pass},${clear_block})`;
+      `INSERT INTO game(title,min_chip,max_chip,type_game_id,is_show,end_time,max_bet,min_bet,game_detail,end_block,is_auto_pass,clear_block) VALUES('${title}',${min_chip},${max_chip},${type_game_id},${is_show},${end_time},${max_bet},${min_bet},'${game_detail}',${end_block},${is_auto_pass},${clear_block})`;
 
     await mysql.query(sql);
 
@@ -164,7 +172,7 @@ router.post('/editGameList', async (req, res) => {
     }
     if (end_time) {
       let temp = new String(end_time)
-      if(temp.length >= 12) end_time = end_time/1000
+      if (temp.length >= 12) end_time = end_time / 1000
       str += `  end_time = ${end_time},`;
     }
     if (max_bet) {
